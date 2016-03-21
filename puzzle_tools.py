@@ -45,6 +45,51 @@ def breadth_first_solve(puzzle):
     @rtype: PuzzleNode
     """
 
+    # Adds all the extensions in level-order and excludes repeated cases.
+    possible_sols = unique_extensions(puzzle)
+    while not possible_sols.is_empty():
+        # Checks the possible extensions
+        node = possible_sols.popleft()
+        # If it is a solution, it returns the PuzzleNode so that PuzzleNode.children contains the solution.
+        if node.is_solved():
+            puzzle.children.append(node)
+            return puzzle
+        # If it is not, it adds the PuzzleNode it just checked anyways, so that if the solution is found in the future
+        # it remembers the path to it
+        else:
+            puzzle.children.append(node)
+    # If the possible_sols is empty, it means no solution was returned and found.
+    return None
+
+def unique_extensions(puzzle):
+    """
+    @param puzzle: Puzzle
+    @rtype: deque
+    """
+
+    # Create a new Queue
+    uniques_extns = deque()
+    # Base case: if there are no more extensions, add the PuzzleNode if it's not already in the Queue.
+    if not puzzle.extensions():
+        uniques_extns.append(puzzle) if puzzle not in uniques_extns
+    # Recursive case: if there are extensions, run the function on each PuzzleNode in the set of extensions.
+    # J: problem, is it going to do it by level order or through depth?
+    else:
+        unique_extensions(node) for node in puzzle.extensions
+
+    return uniques_extns
+
+def is_empty(nodes):
+    """
+    Return whether nodes is empty.
+    Modified from lecture.
+
+    @type nodes: deque[PuzzleNode]
+    @rtype: Bool
+    """
+
+    return len(nodes) == 0
+
 
 # Class PuzzleNode helps build trees of PuzzleNodes that have
 # an arbitrary number of children, and a parent.
