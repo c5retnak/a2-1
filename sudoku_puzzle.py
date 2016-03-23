@@ -181,13 +181,49 @@ class SudokuPuzzle(Puzzle):
                  symbols[:i] + [d] + symbols[i + 1:], symbol_set)
                  for d in allowed_symbols])
 
-    # TODO
-    # override fail_fast
     # Notice that it is not possible to complete a sudoku puzzle if there
     # is one open position that has no symbols available to put in it.  In
     # other words, if there is one open position where the symbols already used
     # in the same row, column, and subsquare exhaust the symbols available,
     # there is no point in continuing.
+    def fail_fast(self):
+        """
+        Return True if there is an available space on the grid with no legal
+        symbols available to it. Otherwise, return False.
+
+        @type self: SudokuPuzzle
+        @rtype: bool
+
+        >>> grid = ["A", "B", "C", "D"]
+        >>> grid += ["C", "D", "A", "B"]
+        >>> grid += ["B", "A", "D", "C"]
+        >>> grid += ["D", "C", "B", "*"]
+        >>> s = SudokuPuzzle(4, grid, {"A", "B", "C", "D"})
+        >>> s.fail_fast()
+        False
+        >>> grid = ["A", "B", "C", "D"]
+        >>> grid += ["C", "*", "D", "B"]
+        >>> grid += ["B", "A", "*", "C"]
+        >>> grid += ["D", "C", "B", "*"]
+        >>> no_solve = SudokuPuzzle(4, grid, {"A", "B", "C", "D"})
+        >>> no_solve.fail_fast()
+        True
+        """
+        if "*" in self._symbols:
+            i = 0
+            illegal_fill = False
+            while not illegal_fill and i != len(self._symbols):
+                if self._symbols[i] == "*":
+                    allowed_symbols = (self._symbol_set -
+                                       (self._row_set(i) |
+                                        self._column_set(i) |
+                                        self._subsquare_set(i)))
+                    if not allowed_symbols:
+                        illegal_fill = True
+                i += 1
+            return illegal_fill
+        else:
+            return False
 
     # some helper methods
     def _row_set(self, m):

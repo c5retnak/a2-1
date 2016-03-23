@@ -22,20 +22,78 @@ class WordLadderPuzzle(Puzzle):
         # set of characters to use for 1-character changes
         self._chars = "abcdefghijklmnopqrstuvwxyz"
 
-        # TODO
-        # implement __eq__ and __str__
-        # __repr__ is up to you
+    def __eq__(self, other):
+        """
+        Return whether WordLadderPuzzle self is equivalent to other.
+
+        @type self: WordLadderPuzzle
+        @type other: WordLadderPuzzle
+        @rtype: bool
+
+        >>> ladder1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> ladder2 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> ladder1 == ladder2
+        True
+        >>> ladder3 = WordLadderPuzzle("cane", "cape", {"cane", "cape"})
+        >>> ladder1 == ladder3
+        False
+        """
+        return (type(self) == type(other) and
+                self._from_word == other._from_word and
+                self._to_word == other._to_word and
+                self._word_set == other._word_set)
+
+    def __str__(self):
+        """
+        Return a string representation of WordLadderPuzzle self.
+
+        @type self: WordLadderPuzzle
+        @rtype: str
+
+        >>> ladder1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> print(ladder1)
+        case -> cape
+        """
+        return "{} -> {}".format(self._from_word, self._to_word)
+
+    def __repr__(self):
+        """
+        Return representation of WordLadderPuzzle self as a string that
+        can be evaluated into an equivalent WordLadderPuzzle.
+
+        @type self: WordLadderPuzzle
+        @rtype: str
+
+        >>> ladder1 = WordLadderPuzzle("case", "case", {'case'})
+        >>> ladder1
+        WordLadderPuzzle("case", "case", {'case'})
+        """
+        return "WordLadderPuzzle(\"{}\", \"{}\", {})".format(self._from_word,
+                                                             self._to_word,
+                                                             self._word_set)
 
         # TODO
         # override extensions
         # legal extensions are WordLadderPuzzles that have a from_word that can
         # be reached from this one by changing a single letter to one of those
         # in self._chars
+    def extensions(self):
+        """
+        Return a list of extensions of WordLadderPuzzle self.
+
+        @type self: WordLadderPuzzle
+        @rtype: list[WordLadderPuzzle]
+        """
 
         # TODO
         # override is_solved
         # this WordLadderPuzzle is solved when _from_word is the same as
         # _to_word
+    def is_solved(self):
+        if self._from_word == self._to_word:
+            return True
+        else:
+            return False
 
 
 if __name__ == '__main__':
