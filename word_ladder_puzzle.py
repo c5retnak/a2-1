@@ -30,12 +30,12 @@ class WordLadderPuzzle(Puzzle):
         @type other: WordLadderPuzzle
         @rtype: bool
 
-        >>> ladder1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
-        >>> ladder2 = WordLadderPuzzle("case", "cape", {"case", "cape"})
-        >>> ladder1 == ladder2
+        >>> l1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> l2 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> l1 == l2
         True
-        >>> ladder3 = WordLadderPuzzle("cane", "cape", {"cane", "cape"})
-        >>> ladder1 == ladder3
+        >>> l3 = WordLadderPuzzle("cane", "cape", {"cane", "cape"})
+        >>> l1 == l3
         False
         """
         return (type(self) == type(other) and
@@ -50,7 +50,7 @@ class WordLadderPuzzle(Puzzle):
         @type self: WordLadderPuzzle
         @rtype: str
 
-        >>> ladder1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
+        >>> l1 = WordLadderPuzzle("case", "cape", {"case", "cape"})
         >>> print(ladder1)
         case -> cape
         """
@@ -64,8 +64,8 @@ class WordLadderPuzzle(Puzzle):
         @type self: WordLadderPuzzle
         @rtype: str
 
-        >>> ladder1 = WordLadderPuzzle("case", "case", {'case'})
-        >>> ladder1
+        >>> l1 = WordLadderPuzzle("case", "case", {'case'})
+        >>> l1
         WordLadderPuzzle("case", "case", {'case'})
         """
         return "WordLadderPuzzle(\"{}\", \"{}\", {})".format(self._from_word,
@@ -83,13 +83,50 @@ class WordLadderPuzzle(Puzzle):
 
         @type self: WordLadderPuzzle
         @rtype: list[WordLadderPuzzle]
+
+        >>> l1 = WordLadderPuzzle("ape", "ace", {"ape", "ace"})
+        >>> extensions = l1.extensions()
+        >>> comparison = [WordLadderPuzzle("ace", "ace", {"ape", "ace"})]
+        >>> len(extensions) == len(comparison)
+        True
+        >>> all([l in comparison for l in extensions])
+        True
+        >>> all([l in extensions for l in comparison])
+        True
         """
+        from_word, to_word, word_set, chars = self._from_word, self._to_word, \
+                                              self._word_set, self._chars
+        if from_word == to_word:
+            return []
+        else:
+            legal_words = []
+            i = 0
+            for i in range(len(from_word)):
+                # If character at the given index does not match between the
+                # words, determine legal words that can be changed by one letter.
+                if not from_word[i] == to_word[i]:
+                    arraigned_words = [from_word[:i] + char + from_word[i + 1:] for char in (set(chars) - set(from_word[i]))]
+                    legal_words += [word for word in arraigned_words if word in self._word_set]
+        return [WordLadderPuzzle(ext, to_word, word_set) for ext in legal_words]
 
         # TODO
         # override is_solved
         # this WordLadderPuzzle is solved when _from_word is the same as
         # _to_word
     def is_solved(self):
+        """
+        Return True if WordLadderPuzzle self is sovled. Otherwise return False.
+
+        @type self: WordLadderPuzzle
+        @rtype: bool
+
+        >>> l1 = WordLadderPuzzle("ape", "ace", {"ape", "ace"})
+        >>> l1.is_solved()
+        False
+        >>> l2 = WordLadderPuzzle("ace", "ace", {"ape", "ace"})
+        >>> l2.is_solved()
+        True
+        """
         if self._from_word == self._to_word:
             return True
         else:
