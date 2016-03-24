@@ -67,29 +67,52 @@ def unique_extensions(puzzle):
     @rtype: deque
     """
 
-    # Create a new Queue
-    uniques_extns = deque()
+    #1
     # Base case: if there are no more extensions, add the PuzzleNode if it's not already in the Queue.
+    uniques_extns = deque()
+    uniques_extns.append(puzzle)
+
     if not puzzle.extensions():
-        uniques_extns.append(puzzle) if puzzle not in uniques_extns
+        if puzzle not in uniques_extns:
+            uniques_extns.append(puzzle)
     # Recursive case: if there are extensions, run the function on each PuzzleNode in the set of extensions.
     # J: problem, is it going to do it by level order or through depth?
     else:
-        unique_extensions(node) for node in puzzle.extensions
+        uniques_extns.extend([unique_extensions(node) for node in puzzle.extensions])
 
     return uniques_extns
+
+    #2 - the best one i have currently
+    uniques_extns = deque()
+    uniques_extns.append(puzzle)
+
+    while not uniques_extns.is_empty():
+        check_node = uniques_extns.remove()
+        if check_node not in uniques_extns:
+            uniques_extns.append(check_node)
+        if check_node.extensions():
+            uniques_extns.extend(check_node.extensions())
+
+    return uniques_extns
+
+    #3 - using dictionary?? they are unordered, only the keys are unique, but keys cannot be mutable... so ???
+    extns = {}
+    extns[1] = puzzle
+
+    if puzzle.extensions():
+        for grid in puzzle.extensions():
+            extns[]
 
 def is_empty(nodes):
     """
     Return whether nodes is empty.
-    Modified from lecture.
+    Modified from lecture sample.
 
     @type nodes: deque[PuzzleNode]
     @rtype: Bool
     """
 
     return len(nodes) == 0
-
 
 # Class PuzzleNode helps build trees of PuzzleNodes that have
 # an arbitrary number of children, and a parent.
@@ -140,7 +163,6 @@ class PuzzleNode:
     def __str__(self):
         """
         Return a human-readable string representing PuzzleNode self.
-
         # doctest not feasible.
         """
         return "{}\n\n{}".format(self.puzzle,

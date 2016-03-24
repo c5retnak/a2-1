@@ -82,12 +82,10 @@ class GridPegSolitairePuzzle(Puzzle):
             j += 1
             for i in range(len(row)):
                 gpsp += row[i]
+            # to remove the <BLANKLINE> at the end
             if j != len(self._marker):
                 gpsp += "\n"
         return gpsp
-
-    def __repr__(self):
-        pass
 
     def is_solved(self):
         """
@@ -113,37 +111,69 @@ class GridPegSolitairePuzzle(Puzzle):
         @type self: GridPegSolitairePuzzle
         @rtype: list[GridPegSolitairePuzzle]
         """
-        # J: INCOMPLETE
-        # convenient name
-        all_spots = self._marker
 
-        lex = []
+        # convenient names
+        marker, marker_set = self._marker, self._marker_set
 
-        return lex
+        if all(["." not in row for row in marker]):
+            # return an empty list
+            return [_ for _ in []]
+        else:
+            jumps = []
+            #for each piece in board, if there is an available jump (helper fn)
+            #add the list[list[str]] to jumps
+            return [GridPegSolitairePuzzle(new_marker, marker_set) for new_marker in jumps]
 
-    # create empty_space_list
-        # [spot[r][c], ...]
-    # for every spot in empty_space_list
-        # above: if spot[r-2][c] exists and not # and spot[r-1][c] not in empty_space_list
-        # below: if spot[r+2][c] exists and not # and spot[r+1][c] not .
-        # left: if spot[r][c-2] exists and not # "
-        # right: if spot[r][c+2] exists and not # "
-            # create new grid, then add it
-            # lex.append(GridPegSolitaire())
+def available_jump(self):
+    """
+
+    @type self: list[list[str]]
+    @return: list[list[list[str]]]
+    """
+
+    jumps = []
+    for row in range(len(self)):
+        for col in range(len(self[row])):
+            if self[row][col] == "*":
+                if (row-2) > -1 and self[row-2][col] == "." and self[row-1][col] == "*":
+                    jump1 = self.copy()
+                    jump1[row][col], jump1[row-1][col], jump1[row-2][col] = ".", ".", "*"
+                    jumps.append(jump1)
+                if (col-2) > -1 and self[row][col-2] and self[row][col-1] == "*":
+                    jump3 = self.copy()
+                    jump3[row][col], jump3[row-1][col], jump3[row-2][col] = ".", ".", "*"
+                    jumps.append(jump3)
+                if (col+2) < len(self[row]) and self[row][col+2] and self[row][col+1] == "*":
+                    jump4 = self.copy()
+                    jump4[row][col], jump4[row-1][col], jump4[row-2][col] = ".", ".", "*"
+                    jumps.append(jump4)
+    return jumps
+
+def jump_up(grid):
+    """
+
+    @type grid: list[list[str]]
+    @return: list[list[str]]
+    """
+
+    if (row+2) < len(self) and self[row+2][col] and self[row+1][col] == "*":
+        jump2 = grid.copy()
+        jump2[row][col], jump2[row-1][col], jump2[row-2][col] = ".", ".", "*"
 
 
 if __name__ == "__main__":
     import doctest
 
     doctest.testmod()
-    #from puzzle_tools import depth_first_solve
+    from puzzle_tools import depth_first_solve
 
-    # grid = [["*", "*", "*", "*", "*"],
-    #         ["*", "*", "*", "*", "*"],
-    #         ["*", "*", "*", "*", "*"],
-    #         ["*", "*", ".", "*", "*"],
-    #         ["*", "*", "*", "*", "*"]]
-    # gpsp = GridPegSolitairePuzzle(grid, {"*", ".", "#"})
+    grid = [["*", "*", "*", "*", "*"],
+            ["*", "*", "*", "*", "*"],
+            ["*", "*", ".", "*", "*"],
+            ["*", "*", "*", "*", "*"],
+            ["*", "*", "*", "*", "*"]]
+    gpsp = GridPegSolitairePuzzle(grid, {"*", ".", "#"})
+    gpsp.extensions()
     # import time
     #
     # start = time.time()
