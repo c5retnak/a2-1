@@ -26,6 +26,34 @@ def depth_first_solve(puzzle):
     @type puzzle: Puzzle
     @rtype: PuzzleNode
     """
+    if puzzle.is_solved():
+        return PuzzleNode(puzzle)
+    elif puzzle.fail_fast() or not puzzle.extensions():
+        return None
+
+
+
+   # visited = set()
+   # extensions = puzzle.extensions()[:]
+   # while not puzzle.is_solved():
+   #     print(puzzle)
+   #     while extensions:
+   #         new_config = extensions.pop()
+   #         if str(new_config) not in visited:
+   #             visited.add(str(new_config))
+   #             extensions.extend(new_config.extensions())
+
+    #print(puzzle)
+    #unvisited = set(str(puzzle.extensions()))
+    #if puzzle.is_solved():
+    #    return PuzzleNode(puzzle)
+    #elif not puzzle.extensions():
+    #    return None
+    #else:
+    #    for ext in puzzle.extensions():
+    #        if str(ext) in unvisited:
+    #            unvisited -= set(ext)
+    #            return PuzzleNode(puzzle, [depth_first_solve(ext)])
 
 
 # TODO
