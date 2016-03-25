@@ -28,7 +28,6 @@ class GridPegSolitairePuzzle(Puzzle):
         assert all([x == "*" or x == "." or x == "#" for x in marker_set])
         self._marker, self._marker_set = marker, marker_set
 
-
     def __eq__(self, other):
         """
         Return whether GridPegSolitairePuzzle self is equivalent to other.
@@ -61,7 +60,8 @@ class GridPegSolitairePuzzle(Puzzle):
 
     def __str__(self):
         """
-        Return a human-readable string representation of GridPegSolitairePuzzle self.
+        Return a human-readable string representation of GridPegSolitairePuzzle
+        self.
 
         >>> grid = []
         >>> grid.append(["*", "*", ".", "*", "*"])
@@ -71,11 +71,6 @@ class GridPegSolitairePuzzle(Puzzle):
         **.**
         *****
         """
-
-        # rows = [[row[i] for i in range(len(row))]
-        #         for row in self._marker]
-        # return "\n".join(rows)
-
         gpsp = ""
         j = 0
         for row in self._marker:
@@ -97,12 +92,13 @@ class GridPegSolitairePuzzle(Puzzle):
         >>> grid = []
         >>> grid.append([".", ".", ".", ".", "."])
         >>> grid.append([".", ".", "*", ".", "."])
-        >>> gpsp = GridPegSolitairePuzzle(grid, {"*", ".", "#"})
-        >>> gpsp.is_solved()
+        >>> gpsp1 = GridPegSolitairePuzzle(grid, {"*", ".", "#"})
+        >>> gpsp1.is_solved()
         True
         """
 
-        return [self._marker[i].count("*") == 1 for i in range(len(self._marker))].count(True) == 1
+        return [self._marker[i].count("*") == 1 for i in
+                range(len(self._marker))].count(True) == 1
 
     def extensions(self):
         """
@@ -110,55 +106,118 @@ class GridPegSolitairePuzzle(Puzzle):
 
         @type self: GridPegSolitairePuzzle
         @rtype: list[GridPegSolitairePuzzle]
+
+        >>> mset = {"*", ".", "#"}
+        >>> grid_1 = []
+        >>> grid_1.append(["*", "*", ".", "*", "*"])
+        >>> grid_1.append(["*", "*", "*", "*", "*"])
+        >>> gpsp1 = GridPegSolitairePuzzle(grid_1, mset)
+        >>> extensions = list(gpsp1.extensions())
+        >>> left_jump = []
+        >>> left_jump.append(["*", "*", "*", ".", "."])
+        >>> left_jump.append(["*", "*", "*", "*", "*"])
+        >>> gpsp2 = GridPegSolitairePuzzle(left_jump, mset)
+        >>> right_jump = []
+        >>> right_jump.append([".", ".", "*", "*", "*"])
+        >>> right_jump.append(["*", "*", "*", "*", "*"])
+        >>> gpsp3 = GridPegSolitairePuzzle(right_jump, mset)
+        >>> comparisons = [gpsp2, gpsp3]
+        >>> len(extensions) == len(comparisons)
+        True
+        >>> all([puzzle in extensions for puzzle in comparisons])
+        True
+        >>> all([puzzle in comparisons for puzzle in extensions])
+        True
+        >>> grid_2 = []
+        >>> grid_2.append(["*", "*"])
+        >>> grid_2.append(["*", "*"])
+        >>> grid_2.append([".", "*"])
+        >>> grid_2.append(["*", "*"])
+        >>> grid_2.append(["*", "*"])
+        >>> gps1 = GridPegSolitairePuzzle(grid_2, mset)
+        >>> extensions = gps1.extensions()
+        >>> up_jump = []
+        >>> up_jump.append(["*", "*"])
+        >>> up_jump.append(["*", "*"])
+        >>> up_jump.append(["*", "*"])
+        >>> up_jump.append([".", "*"])
+        >>> up_jump.append([".", "*"])
+        >>> gpsp4 = GridPegSolitairePuzzle(up_jump, mset)
+        >>> down_jump = []
+        >>> down_jump.append([".", "*"])
+        >>> down_jump.append([".", "*"])
+        >>> down_jump.append(["*", "*"])
+        >>> down_jump.append(["*", "*"])
+        >>> down_jump.append(["*", "*"])
+        >>> gpsp5 = GridPegSolitairePuzzle(down_jump, mset)
+        >>> comparisons = [gpsp4, gpsp5]
+        >>> len(extensions) == len(comparisons)
+        True
+        >>> all([puzzle in extensions for puzzle in comparisons])
+        True
+        >>> all([puzzle in comparisons for puzzle in extensions])
+        True
         """
-
-        # convenient names
+        # Convenient names.
         marker, marker_set = self._marker, self._marker_set
-
-        if all(["." not in row for row in marker]):
-            # return an empty list
+        if sum([row.count("*") for row in marker]) == 1 or all(["." not in row
+                                                                for row in
+                                                                marker]):
+            # Return an empty list.
             return [_ for _ in []]
         else:
-            jumps = []
-            #for each piece in board, if there is an available jump (helper fn)
-            #add the list[list[str]] to jumps
-            return [GridPegSolitairePuzzle(new_marker, marker_set) for new_marker in jumps]
+            legal_jumps = _available_jumps(self._marker)
+            # For each piece in board, if there is an available jump add the
+            # list[list[str]] to jumps.
+            return [GridPegSolitairePuzzle(new_grid, marker_set) for
+                    new_grid in legal_jumps]
 
-def available_jump(self):
-    """
-
-    @type self: list[list[str]]
-    @return: list[list[list[str]]]
-    """
-
-    jumps = []
-    for row in range(len(self)):
-        for col in range(len(self[row])):
-            if self[row][col] == "*":
-                if (row-2) > -1 and self[row-2][col] == "." and self[row-1][col] == "*":
-                    jump1 = self.copy()
-                    jump1[row][col], jump1[row-1][col], jump1[row-2][col] = ".", ".", "*"
-                    jumps.append(jump1)
-                if (col-2) > -1 and self[row][col-2] and self[row][col-1] == "*":
-                    jump3 = self.copy()
-                    jump3[row][col], jump3[row-1][col], jump3[row-2][col] = ".", ".", "*"
-                    jumps.append(jump3)
-                if (col+2) < len(self[row]) and self[row][col+2] and self[row][col+1] == "*":
-                    jump4 = self.copy()
-                    jump4[row][col], jump4[row-1][col], jump4[row-2][col] = ".", ".", "*"
-                    jumps.append(jump4)
-    return jumps
-
-def jump_up(grid):
+def _available_jumps(grid):
     """
 
     @type grid: list[list[str]]
-    @return: list[list[str]]
+    @return: list[list[list[str]]]
     """
-
-    if (row+2) < len(self) and self[row+2][col] and self[row+1][col] == "*":
-        jump2 = grid.copy()
-        jump2[row][col], jump2[row-1][col], jump2[row-2][col] = ".", ".", "*"
+    new_grids = []
+    for row in range(len(grid)):
+        for col in range(len(grid[row])):
+            # If the given marker is a peg, check for available moves.
+            if grid[row][col] == "*":
+                # If this peg has a peg above it, and that peg has an empty
+                # spot above it, this peg can jump 2 spots up.
+                if ((row - 2) >= 0 and grid[row - 2][col] == "."
+                    and grid[row - 1][col] == "*"):
+                        jump_up_grid = [row.copy() for row in grid]
+                        jump_up_grid[row][col] = "."
+                        jump_up_grid[row - 1][col] = "."
+                        jump_up_grid[row - 2][col] = "*"
+                        new_grids.append(jump_up_grid)
+                # Do the same as above, but with below the given peg.
+                if ((row + 2) < len(grid) and grid[row + 2][col] == "."
+                    and grid[row + 1][col] == "*"):
+                        jump_down_grid = [row.copy() for row in grid]
+                        jump_down_grid[row][col] = "."
+                        jump_down_grid[row + 1][col] = "."
+                        jump_down_grid[row + 2][col] = "*"
+                        new_grids.append(jump_down_grid)
+                # If this peg has a peg to its left, and that peg has a an
+                # empty spot to its left, this peg can jump 2 spots left.
+                if ((col - 2) >= 0 and grid[row][col - 2] == "."
+                    and grid[row][col - 1] == "*"):
+                        jump_left_grid = [[peg for peg in row] for row in grid]
+                        jump_left_grid[row][col] = "."
+                        jump_left_grid[row][col - 1] = "."
+                        jump_left_grid[row][col - 2] = "*"
+                        new_grids.append(jump_left_grid)
+                # Do the same as above, but with the right.
+                if ((col + 2) < len(grid[row]) and grid[row][col + 2] == "."
+                    and grid[row][col + 1] == "*"):
+                        jump_right_grid = [[peg for peg in row] for row in grid]
+                        jump_right_grid[row][col] = "."
+                        jump_right_grid[row][col + 1] = "."
+                        jump_right_grid[row][col + 2] = "*"
+                        new_grids.append(jump_right_grid)
+    return new_grids
 
 
 if __name__ == "__main__":
@@ -169,15 +228,14 @@ if __name__ == "__main__":
 
     grid = [["*", "*", "*", "*", "*"],
             ["*", "*", "*", "*", "*"],
-            ["*", "*", ".", "*", "*"],
             ["*", "*", "*", "*", "*"],
+            ["*", "*", ".", "*", "*"],
             ["*", "*", "*", "*", "*"]]
     gpsp = GridPegSolitairePuzzle(grid, {"*", ".", "#"})
-    gpsp.extensions()
-    # import time
-    #
-    # start = time.time()
-    # solution = depth_first_solve(gpsp)
-    # end = time.time()
-    # print("Solved 5x5 peg solitaire in {} seconds.".format(end - start))
-    # print("Using depth-first: \n{}".format(solution))
+    import time
+
+    start = time.time()
+    solution = depth_first_solve(gpsp)
+    end = time.time()
+    print("Solved 5x5 peg solitaire in {} seconds.".format(end - start))
+    print("Using depth-first: \n{}".format(solution))

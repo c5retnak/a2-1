@@ -62,7 +62,6 @@ class MNPuzzle(Puzzle):
         123
         45*
         """
-
         mn = ""
         j = 0
         for row in self.from_grid:
@@ -80,8 +79,68 @@ class MNPuzzle(Puzzle):
 
         @type self: MNPuzzle
         @rtype: list[MNPuzzle]
-        """
 
+        >>> from_grid = (("1", "2", "3"), ("4", "5", "*"))
+        >>> to_grid = (("*", "2", "3"), ("1", "4", "5"))
+        >>> mn1 = MNPuzzle(from_grid, to_grid)
+        >>> extensions = mn1.extensions()
+        >>> from_grid = (("1", "2", "*"), ("4", "5", "3"))
+        >>> mn2 = MNPuzzle(from_grid, to_grid)
+        >>> from_grid = (("1", "2", "3"), ("4", "*", "5"))
+        >>> mn3 = MNPuzzle(from_grid, to_grid)
+        >>> comparisons = [mn2, mn3]
+        >>> len(extensions) == len(comparisons)
+        True
+        >>> all([puzzle in extensions for puzzle in comparisons])
+        True
+        >>> all([puzzle in comparisons for puzzle in extensions])
+        True
+        """
+        # Convenient names.
+        from_grid, to_grid = self.from_grid, self.to_grid
+        if all(["*" not in row for row in from_grid]):
+            # Return an empty list.
+            return [_ for _ in []]
+        else:
+            legal_slides = []
+            for row in range(len(self.n)):
+                # If the given marker is the empty block, check for swaps.
+                if "*" in from_grid[row]:
+                    col = from_grid[row].index("*")
+                    # If this empty block has a block above it, swap the blocks.
+                    if (row - 1) >= 0:
+                        above_block = from_grid[row - 1][col]
+                        copy = [list(r) for r in from_grid]
+                        copy[row - 1][col] = "*"
+                        copy[row][col] = above_block
+                        tuples = [tuple(x) for x in copy]
+                        legal_slides.append(tuples)
+                    # Do the same as above, but with below the given block.
+                    if (row + 1) < len(from_grid):
+                        below_block = from_grid[row + 1][col]
+                        swap_down_grid = [row.copy() for row in from_grid]
+                        swap_down_grid[row][col] = "."
+                        swap_down_grid[row + 1][col] = "."
+                        swap_down_grid[row + 2][col] = "*"
+                        legal_slides.append(swap_down_grid)
+                    # Swap if this empty block has a block to its left.
+                    if (col - 1) >= 0:
+                        left_block = from_grid[row][col - 1]
+                        swap_left_grid = [[peg for peg in row] for row in from_grid]
+                        swap_left_grid[row][col] = "."
+                        swap_left_grid[row][col - 1] = "."
+                        swap_left_grid[row][col - 2] = "*"
+                        legal_slides.append(swap_left_grid)
+                    # Do the same as above, but with the right.
+                    if (col + 1) < len(from_grid[row]):
+                        right_block = from_grid[row][col + 1]
+
+                        swap_right_grid = [[peg for peg in row] for row in from_grid]
+                        swap_right_grid[row][col] = "."
+                        swap_right_grid[row][col + 1] = "."
+                        swap_right_grid[row][col + 2] = "*"
+                        legal_slides.append(swap_right_grid)
+        return [MNPuzzle(new_grid, to_grid) for new_grid in legal_slides]
         # convenient names
         from_grid, to_grid = self.from_grid, self.to_grid
         for j in range(len(from_grid)):
@@ -93,43 +152,6 @@ class MNPuzzle(Puzzle):
                                tuple(from_grid[j][i+1]), tuple(from_grid[j][i-1]))
             return ([MNPuzzle(from_grid[:j][:i] + d + from_grid[:j][i + 1:], to_grid)
                  for d in allowed_symbols])
-
-        # def find_space(self):
-        #     """
-        #     Returns the [row, col] of the space.
-        #
-        #     @type self: MNPuzzle
-        #     @rype: list[int]
-        #     """
-        #
-        #     j = 0
-        #     for row in self.from_grid:
-        #         j += 1
-        #         for i in range(len(row)):
-        #             if row[i] == "*":
-        #                 return [j, i]
-        #     return "Error: no space found"
-
-        # lex = []
-        # cur_grid = []
-        # col = None
-        # row = 0
-        # while col != None and row < len(self.from_grid):
-        #     if "*" in self.from_grid[row]:
-        #         col = self.from_grid[row].index("*")
-        #     row += 1
-        #     cur_grid.append(list(row))
-
-        #if changes not > len(self.m or self.n)
-        #up , change from_grid [j+1, i] and add it to coor list
-        #down, change from_grid [j-1, i] and add it to coor list
-        #right, change from_grid [j, i-1] and add it to coor list
-        #left, change from_grid [j, i+1] and add it to coor list
-
-        #for each location in the coor list
-        #change cur_grid, add it to lex
-
-        # return lex
 
     def is_solved(self):
         """
